@@ -7,12 +7,124 @@ import 'package:provider/provider.dart';
 
 class ProductWidget extends StatelessWidget {
   @override
+  @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
     final product = Provider.of<Product>(context);
     final isInCart = cart.items.containsKey(product.id);
     final quantity = isInCart ? cart.items[product.id]!.quantity : 0;
+    
+    // Import from responsive.dart using absolute path structure in context, or directly rely on UI constraint
+    bool isMobile = MediaQuery.of(context).size.width < 650;
 
+    if (!isMobile) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Image section - Ensures all images are cropped to exactly the same bounds
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: Image.asset(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Like button (top-right)
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Consumer<Product>(
+                      builder: (ctx, prod, _) {
+                        return GestureDetector(
+                          onTap: () => prod.toggleFavoriteStatus(),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              prod.isFavorite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: prod.isFavorite ? kPrimaryGreen : const Color(0xFFBDBDBD),
+                              size: 18,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Text + button section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    product.title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: kTextColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '${product.price.toStringAsFixed(0)} so\'m',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: kPrimaryGreenDark,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Savatga button OR counter
+                  isInCart
+                      ? _buildCounter(context, cart, product, quantity)
+                      : _buildAddButton(context, cart, product),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ORIGINAL MOBILE LAYOUT
     return Container(
       decoration: BoxDecoration(
         color: kCardColor,
@@ -45,7 +157,7 @@ class ProductWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Image.asset(
                         product.imageUrl,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.contain, // Orig Mobile style
                       ),
                     ),
                   ),

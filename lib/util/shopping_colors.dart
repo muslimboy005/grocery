@@ -12,6 +12,7 @@ const Color kSoftGreen = Color(0xFFE8F5E9);
 // Accent / CTA
 const Color kAccentOrange = Color(0xFFFF6D00);
 const Color kAccentOrangeLight = Color(0xFFFF9100);
+const Color kWarningYellow = Color(0xFFFFB300);
 
 // Backgrounds
 const Color kBackgroundColor = Color(0xFFF6F6F9);
