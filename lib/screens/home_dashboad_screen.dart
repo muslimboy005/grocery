@@ -201,41 +201,44 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                       ),
                       const Spacer(),
                       // Cart, Fav & Profile
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () => setState(() => _currentIndex = 2),
-                            child: const Icon(Icons.shopping_bag_outlined, color: kTextColor, size: 24),
-                          ),
-                          const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: () => setState(() => _currentIndex = 3),
-                            child: const Icon(Icons.favorite_border_rounded, color: kTextColor, size: 24),
-                          ),
-                          const SizedBox(width: 16),
-                          Container(width: 1, height: 32, color: kDividerColor),
-                          const SizedBox(width: 16),
-                          ClipOval(
-                            child: Image.asset(
-                              'shopping_assets/images/user.png',
-                              width: 36,
-                              height: 36,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
+                      Flexible(
+                        flex: 2,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: () => setState(() => _currentIndex = 2),
+                              child: const Icon(Icons.shopping_bag_outlined, color: kTextColor, size: 24),
                             ),
-                          ),
-                          if (!hideName) ...[
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                'John Doe',
-                                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: kTextColor),
-                                overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 16),
+                            GestureDetector(
+                              onTap: () => setState(() => _currentIndex = 3),
+                              child: const Icon(Icons.favorite_border_rounded, color: kTextColor, size: 24),
+                            ),
+                            const SizedBox(width: 16),
+                            Container(width: 1, height: 32, color: kDividerColor),
+                            const SizedBox(width: 16),
+                            ClipOval(
+                              child: Image.asset(
+                                'shopping_assets/images/user.png',
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
                               ),
                             ),
+                            if (!hideName) ...[
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'John Doe',
+                                  style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: kTextColor),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ],
                   ),

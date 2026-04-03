@@ -3,15 +3,16 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "5548788437bfdb5ad39a5e5e4adaddc5",
+const RESOURCES = {"flutter_bootstrap.js": "0d794f248f8057b410ee2c58772a16ec",
 "version.json": "868c6fca6cfa40393c07f0ab75b73b60",
-"index.html": "af649764e3105866ac1bb2aceef60260",
-"/": "af649764e3105866ac1bb2aceef60260",
-"main.dart.js": "449067be8172afa3c7b22786e3ccde0b",
+"index.html": "39306d3b9551fbb4c105b7c3fe089874",
+"/": "39306d3b9551fbb4c105b7c3fe089874",
+"main.dart.js": "df3848f15f4354c2ca7c8ee2d024b3c4",
 "flutter.js": "24bc71911b75b5f8135c949e27a2984e",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"manifest.json": "19cddb7a5b0088f295427c8c8c5bfffe",
 "assets/shopping_assets/grocery.gif": "3e6602f525d24078efa4e05406c89dff",
 "assets/shopping_assets/images/dairy_eggs/cover.png": "5fa39628d486b265c7e1a29aa77aa7ba",
 "assets/shopping_assets/images/bakery_snacks/cover.png": "d1cb049b7f9cf4f53073dec15eb8bde6",
