@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/cart.dart';
 import 'package:grocery_app/model/orders.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
@@ -15,6 +16,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cart = Provider.of<Cart>(context);
     bool isMobile = Responsive.isMobile(context);
 
@@ -37,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Savatchangiz bo\'sh',
+            l10n.emptyCartTitle,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -46,7 +48,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Boshlash uchun mahsulot qo\'shing',
+            l10n.emptyCartSubtitle,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: kTextSecondary,
@@ -95,7 +97,7 @@ class _CartScreenState extends State<CartScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Text(
-                  'Xarid xulosasi',
+                  l10n.cartSummary,
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -107,14 +109,14 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Oraliq jami',
+                  l10n.subtotal,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: kTextSecondary,
                   ),
                 ),
                 Text(
-                  '${cart.totalAmount.toStringAsFixed(0)} so\'m',
+                  l10n.priceCurrency(cart.totalAmount.toStringAsFixed(0)),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -128,14 +130,14 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Yetkazish',
+                  l10n.delivery,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: kTextSecondary,
                   ),
                 ),
                 Text(
-                  'Bepul',
+                  l10n.free,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -152,7 +154,7 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Jami',
+                  l10n.total,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -160,7 +162,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 Text(
-                  '${cart.totalAmount.toStringAsFixed(0)} so\'m',
+                  l10n.priceCurrency(cart.totalAmount.toStringAsFixed(0)),
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -180,6 +182,9 @@ class _CartScreenState extends State<CartScreen> {
                     cart.totalAmount,
                   );
                   cart.clear();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.orderPlaced)),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kPrimaryGreen,
@@ -190,7 +195,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 child: Text(
-                  'To\'lov qilish',
+                  l10n.checkout,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

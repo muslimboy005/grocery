@@ -1,180 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/cart.dart';
 import 'package:grocery_app/model/product.dart';
+import 'package:grocery_app/screens/product_details_screen.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 import 'package:provider/provider.dart';
 
+const Color _kPromoCardBg = Color(0xFFF0F0F4);
+const Color _kPriceRed = Color(0xFFE53935);
+
+String _formatSum(double value) {
+  final s = value.round().toString();
+  final buf = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+    buf.write(s[i]);
+  }
+  return buf.toString();
+}
+
 class ProductWidget extends StatelessWidget {
-  @override
+  const ProductWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cart = Provider.of<Cart>(context);
     final product = Provider.of<Product>(context);
     final isInCart = cart.items.containsKey(product.id);
     final quantity = isInCart ? cart.items[product.id]!.quantity : 0;
-    
-    // Import from responsive.dart using absolute path structure in context, or directly rely on UI constraint
-    bool isMobile = MediaQuery.of(context).size.width < 650;
+    final isMobile = MediaQuery.of(context).size.width < 650;
+    final radius = isMobile ? 20.0 : 22.0;
+    final horizontalPad = isMobile ? 12.0 : 14.0;
+    final bottomPad = isMobile ? 12.0 : 14.0;
+    final titleSize = isMobile ? 13.0 : 14.0;
+    final unitSize = isMobile ? 12.0 : 12.5;
 
-    if (!isMobile) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image section - Ensures all images are cropped to exactly the same bounds
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Image.asset(
-                      product.imageUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // Like button (top-right)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Consumer<Product>(
-                      builder: (ctx, prod, _) {
-                        return GestureDetector(
-                          onTap: () => prod.toggleFavoriteStatus(),
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              prod.isFavorite
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              color: prod.isFavorite ? kPrimaryGreen : const Color(0xFFBDBDBD),
-                              size: 18,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Text + button section
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    product.title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: kTextColor,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '${product.price.toStringAsFixed(0)} so\'m',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: kPrimaryGreenDark,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Savatga button OR counter
-                  isInCart
-                      ? _buildCounter(context, cart, product, quantity)
-                      : _buildAddButton(context, cart, product),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // ORIGINAL MOBILE LAYOUT
     return Container(
       decoration: BoxDecoration(
-        color: kCardColor,
-        borderRadius: BorderRadius.circular(20),
+        color: _kPromoCardBg,
+        borderRadius: BorderRadius.circular(radius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
+            blurRadius: isMobile ? 14 : 18,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image section
-          Expanded(
-            flex: 3,
-            child: Stack(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Material(
+          color: _kPromoCardBg,
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (ctx) => ProductDetailsScreen(product: product),
+                ),
+              );
+            },
+            splashColor: Colors.black.withValues(alpha: 0.06),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: kSoftGreen.withValues(alpha: 0.5),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
+          Expanded(
+            flex: isMobile ? 3 : 4,
+            child: Stack(
+              clipBehavior: Clip.none,
+              fit: StackFit.expand,
+              children: [
+                Positioned.fill(
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Image.asset(
-                        product.imageUrl,
-                        fit: BoxFit.contain, // Orig Mobile style
-                      ),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(radius)),
+                    child: Image.asset(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
                   ),
                 ),
-                // Like button (top-right)
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Consumer<Product>(
                     builder: (ctx, prod, _) {
                       return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () => prod.toggleFavoriteStatus(),
                         child: Container(
-                          width: 34,
-                          height: 34,
+                          width: isMobile ? 32 : 34,
+                          height: isMobile ? 32 : 34,
                           decoration: BoxDecoration(
-                            color: kCardColor,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -188,7 +110,7 @@ class ProductWidget extends StatelessWidget {
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                             color: prod.isFavorite ? kHeartRed : kTextLight,
-                            size: 18,
+                            size: isMobile ? 17 : 18,
                           ),
                         ),
                       );
@@ -198,120 +120,160 @@ class ProductWidget extends StatelessWidget {
               ],
             ),
           ),
-          // Text + button section
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+            padding:
+                EdgeInsets.fromLTRB(horizontalPad, 6, horizontalPad, bottomPad),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.title,
+                  product.displayTitle,
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
+                    fontSize: titleSize,
                     fontWeight: FontWeight.w600,
                     color: kTextColor,
+                    height: 1.25,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (product.displayUnit.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    product.displayUnit,
+                    style: GoogleFonts.poppins(
+                      fontSize: unitSize,
+                      fontWeight: FontWeight.w400,
+                      color: kTextLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                SizedBox(height: isMobile ? 10 : 12),
+                Text(
+                  l10n.priceCurrency(_formatSum(product.price)),
+                  style: GoogleFonts.poppins(
+                    fontSize: isMobile ? 15 : 16,
+                    fontWeight: FontWeight.w800,
+                    color: _kPriceRed,
+                    height: 1.1,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '${product.price.toStringAsFixed(0)} so\'m',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: kPrimaryGreen,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Savatga button OR counter
+                SizedBox(height: isMobile ? 6 : 8),
                 isInCart
-                    ? _buildCounter(context, cart, product, quantity)
-                    : _buildAddButton(context, cart, product),
+                    ? _buildCounter(context, cart, product, quantity, isMobile)
+                    : _buildBuyButton(context, cart, product, isMobile, l10n),
               ],
             ),
           ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBuyButton(
+    BuildContext context,
+    Cart cart,
+    Product product,
+    bool compact,
+    AppLocalizations l10n,
+  ) {
+    return Material(
+      color: Colors.white,
+      elevation: 2,
+      shadowColor: Colors.black26,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: () {
+          cart.addItem(
+              product.id, product.price, product.title, product.imageUrl);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.addedToCart)),
+          );
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          width: double.infinity,
+          height: compact ? 40 : 44,
+          child: Center(
+            child: Text(
+              l10n.buy,
+              style: GoogleFonts.poppins(
+                fontSize: compact ? 13 : 14,
+                fontWeight: FontWeight.w700,
+                color: kTextColor,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCounter(BuildContext context, Cart cart, Product product,
+      int quantity, bool compact) {
+    return Container(
+      height: compact ? 40 : 44,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildAddButton(BuildContext context, Cart cart, Product product) {
-    return SizedBox(
-      width: double.infinity,
-      height: 36,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          cart.addItem(product.id, product.price, product.title, product.imageUrl);
-        },
-        icon: const Icon(Icons.shopping_cart_outlined, size: 16),
-        label: Text(
-          'Savatga',
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: kPrimaryGreen,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCounter(BuildContext context, Cart cart, Product product, int quantity) {
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
-        color: kSoftGreen,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => cart.removeSingleItem(product.id),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: kCardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: kDividerColor),
-              ),
-              child: Icon(
-                quantity == 1 ? Icons.delete_outline_rounded : Icons.remove_rounded,
-                color: quantity == 1 ? kErrorRed : kPrimaryGreen,
-                size: 18,
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => cart.removeSingleItem(product.id),
+                borderRadius:
+                    const BorderRadius.horizontal(left: Radius.circular(24)),
+                child: Center(
+                  child: Icon(
+                    quantity == 1
+                        ? Icons.delete_outline_rounded
+                        : Icons.remove_rounded,
+                    color: quantity == 1 ? kErrorRed : kTextColor,
+                    size: 22,
+                  ),
+                ),
               ),
             ),
           ),
           Text(
             '$quantity',
             style: GoogleFonts.poppins(
-              fontSize: 15,
+              fontSize: compact ? 15 : 16,
               fontWeight: FontWeight.w700,
-              color: kPrimaryGreen,
+              color: kTextColor,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              cart.addItem(product.id, product.price, product.title, product.imageUrl);
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: kPrimaryGreen,
-                borderRadius: BorderRadius.circular(12),
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  cart.addItem(product.id, product.price, product.title,
+                      product.imageUrl);
+                },
+                borderRadius:
+                    const BorderRadius.horizontal(right: Radius.circular(24)),
+                child: const Center(
+                  child: Icon(Icons.add_rounded, color: kTextColor, size: 22),
+                ),
               ),
-              child: const Icon(Icons.add_rounded, color: Colors.white, size: 18),
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/categories.dart';
 import 'package:grocery_app/model/category.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
@@ -10,8 +11,10 @@ import 'package:provider/provider.dart';
 
 class ShopScreen extends StatefulWidget {
   final Function? categoryClick;
+  final VoidCallback? onOpenExplore;
 
-  const ShopScreen({Key? key, this.categoryClick}) : super(key: key);
+  const ShopScreen({Key? key, this.categoryClick, this.onOpenExplore})
+      : super(key: key);
 
   @override
   _ShopScreenState createState() => _ShopScreenState();
@@ -20,6 +23,7 @@ class ShopScreen extends StatefulWidget {
 class _ShopScreenState extends State<ShopScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final categories = Provider.of<Categories>(context).items;
     bool isMobile = Responsive.isMobile(context);
 
@@ -74,7 +78,7 @@ class _ShopScreenState extends State<ShopScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Yangi Mahsulotlar\nEndi Uyingizda',
+                                  l10n.heroTitle,
                                   style: GoogleFonts.poppins(
                                     fontSize: 32,
                                     fontWeight: FontWeight.w700,
@@ -84,7 +88,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'Eng yaxshi va sarhal mahsulotlar faqat bizda',
+                                  l10n.heroSubtitle,
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     color: Colors.white.withValues(alpha: 0.9),
@@ -92,7 +96,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: widget.onOpenExplore,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
                                     foregroundColor: kPrimaryGreenDark,
@@ -105,7 +109,7 @@ class _ShopScreenState extends State<ShopScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        'Zakaz berish uchun boshla',
+                                        l10n.heroCta,
                                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                                       ),
                                       const SizedBox(width: 8),
@@ -120,51 +124,36 @@ class _ShopScreenState extends State<ShopScreen> {
                       ),
                     ),
                   if (isMobile)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 24, top: 0),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: widget.onOpenExplore,
                         borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 24, top: 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search_rounded, color: kTextSecondary, size: 22),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Mahsulotlarni qidiring...',
-                            style: GoogleFonts.poppins(color: kTextSecondary, fontSize: 14),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search_rounded, color: kTextSecondary, size: 22),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.searchShopHint,
+                                style: GoogleFonts.poppins(color: kTextSecondary, fontSize: 14),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  if (!isMobile)
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildFilterCircle('Mevalar', '🍎'),
-                            _buildFilterCircle('Sabzavotlar', '🥦'),
-                            _buildFilterCircle('Go\'sht', '🥩'),
-                            _buildFilterCircle('Sut mahsulotlari', '🥛'),
-                            _buildFilterCircle('Non', '🥐'),
-                            _buildFilterCircle('Bakaleiya', '🧀'),
-                            _buildFilterCircle('Ichimliklar', '🥤'),
-                            _buildFilterCircle('Shirinliklar', '🍫'),
-                            _buildFilterCircle('Uy-ro\'zg\'or', '🧼'),
-                            _buildFilterCircle('Barchasi', '✨', isAll: true),
-                          ],
                         ),
                       ),
                     ),
@@ -177,7 +166,7 @@ class _ShopScreenState extends State<ShopScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Kategoriyalar yuzasidan xarid',
+                              l10n.shopCategoriesTitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
@@ -186,7 +175,7 @@ class _ShopScreenState extends State<ShopScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Oshxonangiz uchun yangi masalliqlar toping',
+                              l10n.shopCategoriesSubtitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: kTextSecondary,
@@ -221,6 +210,7 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   Widget _buildCategorySection(BuildContext context, Category category, List<dynamic> products, bool isMobile) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 64, vertical: isMobile ? 20 : 32),
       child: Column(
@@ -232,17 +222,18 @@ class _ShopScreenState extends State<ShopScreen> {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: isMobile ? 40 : 48,
-                    height: isMobile ? 40 : 48,
-                    decoration: BoxDecoration(
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: isMobile ? 40 : 48,
+                      height: isMobile ? 40 : 48,
                       color: kSoftGreen,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: Image.asset(
-                      category.imageUrl,
-                      fit: BoxFit.contain,
+                      child: Image.asset(
+                        category.imageUrl,
+                        fit: BoxFit.fill,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                   ),
                   SizedBox(width: isMobile ? 12 : 16),
@@ -263,7 +254,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 child: Row(
                   children: [
                     Text(
-                      isMobile ? 'Hammasi' : 'Barchasini ko\'rish',
+                      isMobile ? l10n.seeAllShort : l10n.seeAll,
                       style: GoogleFonts.poppins(
                         color: kPrimaryGreenDark,
                         fontWeight: FontWeight.w600,
@@ -296,49 +287,6 @@ class _ShopScreenState extends State<ShopScreen> {
                 child: ProductWidget(),
               );
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterCircle(String title, String emoji, {bool isAll = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: isAll ? const Color(0xFFF5F5F5) : Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: isAll ? kDividerColor : Colors.transparent),
-              boxShadow: isAll
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              emoji,
-              style: const TextStyle(fontSize: 32),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: kTextColor,
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
+import 'package:grocery_app/screens/login_screen.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 
 class NavDrawer extends StatelessWidget {
+  const NavDrawer({Key? key}) : super(key: key);
+
+  void _soon(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
+    final msg = AppLocalizations.of(context)!.featureComingSoon;
+    Navigator.pop(context);
+    messenger.showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Drawer(
       backgroundColor: kCardColor,
       shape: const RoundedRectangleBorder(
@@ -15,7 +28,6 @@ class NavDrawer extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          // Header
           Container(
             width: double.infinity,
             padding: EdgeInsets.only(
@@ -60,7 +72,7 @@ class NavDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'John Doe',
+                  l10n.userName,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 18,
@@ -69,7 +81,7 @@ class NavDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'john@example.com',
+                  l10n.userEmail,
                   style: GoogleFonts.poppins(
                     color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 13,
@@ -79,25 +91,30 @@ class NavDrawer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _buildMenuItem(context, Icons.shopping_bag_rounded, 'Buyurtmalarim'),
-          _buildMenuItem(context, Icons.person_outline_rounded, 'Ma\'lumotlarim'),
-          _buildMenuItem(context, Icons.location_on_outlined, 'Yetkazish manzili'),
-          _buildMenuItem(context, Icons.payment_rounded, 'To\'lov usullari'),
-          _buildMenuItem(context, Icons.local_offer_outlined, 'Promo kodlar'),
-          _buildMenuItem(context, Icons.settings_outlined, 'Sozlamalar'),
+          _buildMenuItem(context, Icons.shopping_bag_rounded, l10n.navOrders, _soon),
+          _buildMenuItem(context, Icons.person_outline_rounded, l10n.navProfile, _soon),
+          _buildMenuItem(context, Icons.location_on_outlined, l10n.navAddress, _soon),
+          _buildMenuItem(context, Icons.payment_rounded, l10n.navPayment, _soon),
+          _buildMenuItem(context, Icons.local_offer_outlined, l10n.navPromo, _soon),
+          _buildMenuItem(context, Icons.settings_outlined, l10n.navSettings, _soon),
           const Spacer(),
           const Divider(color: kDividerColor, indent: 24, endIndent: 24),
-          _buildMenuItem(context, Icons.help_outline_rounded, 'Yordam'),
+          _buildMenuItem(context, Icons.help_outline_rounded, l10n.navHelp, _soon),
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
               height: 48,
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginUI()),
+                    (route) => false,
+                  );
+                },
                 icon: const Icon(Icons.logout_rounded, size: 20),
                 label: Text(
-                  'Chiqish',
+                  l10n.logout,
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -116,7 +133,12 @@ class NavDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, IconData icon, String title) {
+  Widget _buildMenuItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    void Function(BuildContext) onTap,
+  ) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
       leading: Container(
@@ -137,7 +159,7 @@ class NavDrawer extends StatelessWidget {
         ),
       ),
       trailing: const Icon(Icons.chevron_right_rounded, color: kTextLight, size: 20),
-      onTap: () => Navigator.pop(context),
+      onTap: () => onTap(context),
     );
   }
 }

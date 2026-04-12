@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/product.dart';
 import 'package:grocery_app/model/products.dart';
 import 'package:grocery_app/screens/product_details_screen.dart';
@@ -13,6 +14,7 @@ class FavWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dismissible(
       key: ValueKey(product!.id),
       background: Container(
@@ -32,20 +34,20 @@ class FavWidget extends StatelessWidget {
           builder: (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Text(
-              'Remove Favorite',
+              l10n.removeFavoriteTitle,
               style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: kTextColor),
             ),
             content: Text(
-              'Remove this item from favorites?',
+              l10n.removeFavoriteMessage,
               style: GoogleFonts.poppins(color: kTextSecondary),
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('Cancel', style: GoogleFonts.poppins(color: kTextSecondary)),
+                child: Text(l10n.cancel, style: GoogleFonts.poppins(color: kTextSecondary)),
                 onPressed: () => Navigator.of(ctx).pop(false),
               ),
               TextButton(
-                child: Text('Remove', style: GoogleFonts.poppins(color: kErrorRed, fontWeight: FontWeight.w600)),
+                child: Text(l10n.remove, style: GoogleFonts.poppins(color: kErrorRed, fontWeight: FontWeight.w600)),
                 onPressed: () {
                   Provider.of<Products>(context, listen: false).toggleFavorite(product!.id);
                   Navigator.of(ctx).pop(true);
@@ -116,7 +118,7 @@ class FavWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${product!.price.toStringAsFixed(0)} so\'m',
+                      l10n.priceCurrency(product!.price.toStringAsFixed(0)),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

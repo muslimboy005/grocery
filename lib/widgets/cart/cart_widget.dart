@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/cart.dart';
 import 'package:grocery_app/model/products.dart';
 import 'package:grocery_app/screens/product_details_screen.dart';
@@ -25,6 +26,7 @@ class CartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cart = Provider.of<Cart>(context);
 
     return GestureDetector(
@@ -86,7 +88,7 @@ class CartWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${price.toStringAsFixed(0)} so\'m',
+                  l10n.priceCurrency(price.toStringAsFixed(0)),
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: kTextSecondary,

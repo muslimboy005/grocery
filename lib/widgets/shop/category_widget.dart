@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/category.dart';
 import 'package:grocery_app/util/responsive.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
+
+/// Matches [ProductWidget] card chrome (main shop grid).
+const Color _kCategoryCardBg = Color(0xFFF0F0F4);
+
 class CategoryWidget extends StatelessWidget {
   final Category? category;
   final Function? onTap;
@@ -11,152 +16,108 @@ class CategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = Responsive.isMobile(context);
+    final l10n = AppLocalizations.of(context)!;
+    final isMobile = Responsive.isMobile(context);
+    final radius = isMobile ? 20.0 : 22.0;
+    final horizontalPad = isMobile ? 12.0 : 14.0;
+    final bottomPad = isMobile ? 12.0 : 14.0;
+    final titleSize = isMobile ? 13.0 : 14.0;
+    final subtitleSize = isMobile ? 12.0 : 12.5;
 
-    if (!isMobile) {
-      return GestureDetector(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         onTap: () => onTap!(category!.id),
+        borderRadius: BorderRadius.circular(radius),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: _kCategoryCardBg,
+            borderRadius: BorderRadius.circular(radius),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: isMobile ? 14 : 18,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Top half Image
               Expanded(
-                flex: 3,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Image.asset(
-                    category!.imageUrl,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              // Bottom half Details
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                category!.title,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: kTextColor,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _getSubtitle(category!.title),
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                color: kTextSecondary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                flex: isMobile ? 3 : 4,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
+                        child: Image.asset(
+                          category!.imageUrl,
+                          fit: BoxFit.fill,
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          height: double.infinity,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: kPrimaryGreenDark,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () => onTap!(category!.id),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Image
-              Image.asset(
-                category!.imageUrl,
-                fit: BoxFit.cover,
-              ),
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.6),
-                    ],
-                    stops: const [0.4, 1.0],
-                  ),
-                ),
-              ),
-              // Title at bottom
-              Positioned(
-                bottom: 14,
-                left: 14,
-                right: 14,
-                child: Text(
-                  category!.title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 8,
+              Padding(
+                padding: EdgeInsets.fromLTRB(horizontalPad, 6, horizontalPad, bottomPad),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category!.title.replaceAll('\n', ' '),
+                      style: GoogleFonts.poppins(
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w600,
+                        color: kTextColor,
+                        height: 1.25,
                       ),
-                    ],
-                  ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _getSubtitle(context, category!.title),
+                      style: GoogleFonts.poppins(
+                        fontSize: subtitleSize,
+                        fontWeight: FontWeight.w400,
+                        color: kTextLight,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: isMobile ? 10 : 12),
+                    Container(
+                      height: isMobile ? 40 : 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        l10n.seeAll,
+                        style: GoogleFonts.poppins(
+                          fontSize: isMobile ? 13 : 14,
+                          fontWeight: FontWeight.w700,
+                          color: kTextColor,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -166,12 +127,14 @@ class CategoryWidget extends StatelessWidget {
     );
   }
 
-  String _getSubtitle(String title) {
-    if (title.toLowerCase().contains('meva')) return 'Tabiiy va vitaminlarga boy';
-    if (title.toLowerCase().contains('non')) return 'Har kuni yangi';
-    if (title.toLowerCase().contains('ichimlik')) return 'Sersuv va tetiklantiruvchi';
-    if (title.toLowerCase().contains('sut') || title.toLowerCase().contains('tuxum')) return 'Toza va sifatli';
-    if (title.toLowerCase().contains('go\'sht')) return 'Yangi so\'yilgan halol go\'sht';
-    return 'Eng sifatli mahsulotlar';
+  String _getSubtitle(BuildContext context, String title) {
+    final l10n = AppLocalizations.of(context)!;
+    final t = title.toLowerCase();
+    if (t.contains('meva')) return l10n.categorySubFruit;
+    if (t.contains('non')) return l10n.categorySubBread;
+    if (t.contains('ichimlik')) return l10n.categorySubDrink;
+    if (t.contains('sut') || t.contains('tuxum')) return l10n.categorySubDairy;
+    if (t.contains('go\'sht')) return l10n.categorySubMeat;
+    return l10n.categorySubDefault;
   }
 }

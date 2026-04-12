@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
+import 'package:grocery_app/l10n/locale_controller.dart';
 import 'package:grocery_app/model/categories.dart';
-import 'package:grocery_app/model/product.dart';
+import 'package:grocery_app/model/category.dart';
 import 'package:grocery_app/screens/cart_screen.dart';
 import 'package:grocery_app/screens/explore_screen.dart';
 import 'package:grocery_app/screens/fav_screen.dart';
-import 'package:grocery_app/screens/login_screen.dart';
 import 'package:grocery_app/screens/shop_screen.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 import 'package:grocery_app/widgets/nav_drawer.dart';
@@ -20,19 +21,47 @@ class HomeDashBoardScreen extends StatefulWidget {
 class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
-  List<Product> _categoryProducts = [];
 
-  final List<String> _titles = [
-    'Do\'kon',
-    'Kategoriyalar',
-    'Savatcha',
-    'Sevimlilar',
-  ];
+  /// Explore: when non-null, that category's product list is shown (may be empty).
+  String? _exploreFilterCategoryId;
+
+  /// Web header: `null` means "Barcha" (all) is selected.
+  String? _selectedWebCategoryId;
+
+  /// True when product list opened from Shop "Hammasi" — back returns to Shop, not Turkumlar grid.
+  bool _exploreProductListFromShop = false;
+
+  List<String> _titles(AppLocalizations l10n) => [
+        l10n.tabShop,
+        l10n.tabCategories,
+        l10n.tabCart,
+        l10n.tabFavorites,
+      ];
+
+  void _openExploreCategories() {
+    setState(() {
+      _exploreFilterCategoryId = null;
+      _selectedWebCategoryId = null;
+      _exploreProductListFromShop = false;
+      _currentIndex = 1;
+    });
+  }
 
   Widget _buildScreen() {
     switch (_currentIndex) {
       case 1:
-        return ExploreScreen(categoryProducts: _categoryProducts);
+        return ExploreScreen(
+          key: ValueKey<String>(
+              'explore_${_exploreFilterCategoryId ?? 'grid'}'),
+          filterCategoryId: _exploreFilterCategoryId,
+          onCategorySelected: (id) {
+            setState(() {
+              _exploreFilterCategoryId = id;
+              _selectedWebCategoryId = id;
+              _exploreProductListFromShop = false;
+            });
+          },
+        );
       case 2:
         return CartScreen();
       case 3:
@@ -40,24 +69,34 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
       case 0:
       default:
         return ShopScreen(
+          key: const ValueKey<String>('shop'),
           categoryClick: (String categoryId) {
             setState(() {
-              _categoryProducts = Provider.of<Categories>(context, listen: false)
-                  .getProductsById(context, categoryId);
+              _exploreFilterCategoryId = categoryId;
+              _selectedWebCategoryId = categoryId;
+              _exploreProductListFromShop = true;
               _currentIndex = 1;
             });
           },
+          onOpenExplore: _openExploreCategories,
         );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final localeCtl = context.watch<LocaleController>();
+    final titles = _titles(l10n);
     bool isMobile = Responsive.isMobile(context);
 
     Widget mainScreenOptions = AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      child: _buildScreen(),
+      child: KeyedSubtree(
+        key: ValueKey<String>(
+            'main_${_currentIndex}_${_exploreFilterCategoryId ?? 'nil'}'),
+        child: _buildScreen(),
+      ),
     );
 
     if (!isMobile) {
@@ -77,39 +116,114 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
                     children: [
-                      const Icon(Icons.local_shipping_outlined, color: kPrimaryGreen, size: 16),
+                      const Icon(Icons.local_shipping_outlined,
+                          color: kPrimaryGreen, size: 16),
                       const SizedBox(width: 8),
                       if (showMost)
                         Flexible(
                           child: Text(
-                            'Bepul yetkazib berish — 200 000 so\'mdan yuqori buyurtmalarga',
-                            style: GoogleFonts.poppins(fontSize: 12, color: kPrimaryGreenDark, fontWeight: FontWeight.w500),
+                            l10n.freeShippingBanner,
+                            style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: kPrimaryGreenDark,
+                                fontWeight: FontWeight.w500),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       if (showMost) const SizedBox(width: 16),
-                      const Icon(Icons.location_on_outlined, color: kTextSecondary, size: 16),
+                      const Icon(Icons.location_on_outlined,
+                          color: kTextSecondary, size: 16),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          'Toshkent',
-                          style: GoogleFonts.poppins(fontSize: 12, color: kTextSecondary),
+                          l10n.cityTashkent,
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, color: kTextSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const Spacer(),
                       if (showAll) ...[
-                        const Icon(Icons.phone_outlined, color: kTextSecondary, size: 16),
+                        const Icon(Icons.phone_outlined,
+                            color: kTextSecondary, size: 16),
                         const SizedBox(width: 4),
-                        Text('+998 71 123-45-67', style: GoogleFonts.poppins(fontSize: 12, color: kTextSecondary)),
+                        Text(l10n.phoneNumber,
+                            style: GoogleFonts.poppins(
+                                fontSize: 12, color: kTextSecondary)),
                         const SizedBox(width: 16),
                       ],
-                      const Icon(Icons.help_outline_rounded, color: kTextSecondary, size: 16),
+                      const Icon(Icons.help_outline_rounded,
+                          color: kTextSecondary, size: 16),
                       const SizedBox(width: 4),
-                      Text('Yordam', style: GoogleFonts.poppins(fontSize: 12, color: kTextSecondary)),
+                      Text(l10n.help,
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, color: kTextSecondary)),
                       const SizedBox(width: 16),
-                      Text('O\'zbekcha', style: GoogleFonts.poppins(fontSize: 12, color: kTextColor, fontWeight: FontWeight.w500)),
-                      const Icon(Icons.keyboard_arrow_down_rounded, color: kTextColor, size: 16),
+                      PopupMenuButton<Locale>(
+                        padding: EdgeInsets.zero,
+                        offset: const Offset(0, 28),
+                        onSelected: (loc) =>
+                            context.read<LocaleController>().setLocale(loc),
+                        itemBuilder: (context) {
+                          return LocaleController.pickerLocales.map((loc) {
+                            final selected = LocaleController.sameLocale(
+                                loc, localeCtl.locale);
+                            return PopupMenuItem<Locale>(
+                              value: loc,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 22,
+                                    child: selected
+                                        ? Icon(
+                                            Icons.check_rounded,
+                                            size: 18,
+                                            color: kPrimaryGreenDark,
+                                          )
+                                        : null,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      LocaleController.menuItemLabel(loc),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        color: kTextColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                        child: SizedBox(
+                          width: 148,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  LocaleController.chipLabel(localeCtl.locale),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: kTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: kTextColor,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -118,9 +232,8 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
             // Main Header
             LayoutBuilder(
               builder: (context, constraints) {
-                bool hideSearchLabel = constraints.maxWidth < 950;
                 bool hideName = constraints.maxWidth < 1150;
-                
+
                 return Container(
                   height: 80,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -138,12 +251,13 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                               color: kPrimaryGreen,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.shopping_basket_rounded, color: Colors.white, size: 24),
+                            child: const Icon(Icons.shopping_basket_rounded,
+                                color: Colors.white, size: 24),
                           ),
                           const SizedBox(width: 12),
                           if (constraints.maxWidth > 850)
                             Text(
-                              'MyShop',
+                              l10n.appTitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
@@ -162,29 +276,23 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                           height: 48,
                           decoration: BoxDecoration(
                             color: kBackgroundColor,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(color: kDividerColor),
                           ),
                           child: Row(
                             children: [
-                              const SizedBox(width: 16),
-                              if (!hideSearchLabel) ...[
-                                Text('Barcha', style: GoogleFonts.poppins(fontSize: 13, color: kTextColor, fontWeight: FontWeight.w500)),
-                                const Icon(Icons.keyboard_arrow_down_rounded, color: kTextColor, size: 18),
-                                Container(
-                                  width: 1,
-                                  height: 24,
-                                  color: kDividerColor,
-                                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                                ),
-                              ],
+                              const SizedBox(width: 1),
                               Expanded(
                                 child: TextField(
                                   decoration: InputDecoration(
-                                    hintText: 'Qidirish...',
-                                    hintStyle: GoogleFonts.poppins(fontSize: 13, color: kTextSecondary),
+                                    hintText: l10n.searchShopHint,
+                                    hintStyle: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      color: kTextSecondary,
+                                    ),
                                     border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.only(bottom: 4),
+                                    contentPadding: const EdgeInsets.only(
+                                        bottom: 4, left: 8),
                                   ),
                                 ),
                               ),
@@ -192,8 +300,11 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                                 width: 40,
                                 height: 40,
                                 margin: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(color: kPrimaryGreen, shape: BoxShape.circle),
-                                child: const Icon(Icons.search_rounded, color: Colors.white, size: 20),
+                                decoration: const BoxDecoration(
+                                    color: kPrimaryGreen,
+                                    shape: BoxShape.circle),
+                                child: const Icon(Icons.search_rounded,
+                                    color: Colors.white, size: 20),
                               ),
                             ],
                           ),
@@ -208,15 +319,18 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                           children: [
                             GestureDetector(
                               onTap: () => setState(() => _currentIndex = 2),
-                              child: const Icon(Icons.shopping_bag_outlined, color: kTextColor, size: 24),
+                              child: const Icon(Icons.shopping_bag_outlined,
+                                  color: kTextColor, size: 24),
                             ),
                             const SizedBox(width: 16),
                             GestureDetector(
                               onTap: () => setState(() => _currentIndex = 3),
-                              child: const Icon(Icons.favorite_border_rounded, color: kTextColor, size: 24),
+                              child: const Icon(Icons.favorite_border_rounded,
+                                  color: kTextColor, size: 24),
                             ),
                             const SizedBox(width: 16),
-                            Container(width: 1, height: 32, color: kDividerColor),
+                            Container(
+                                width: 1, height: 32, color: kDividerColor),
                             const SizedBox(width: 16),
                             ClipOval(
                               child: Image.asset(
@@ -231,8 +345,11 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                               const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
-                                  'John Doe',
-                                  style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: kTextColor),
+                                  l10n.userName,
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: kTextColor),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -255,19 +372,53 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: kPrimaryGreenDark,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedWebCategoryId = null;
+                          _exploreFilterCategoryId = null;
+                          _currentIndex = 0;
+                        });
+                      },
                       borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.menu_rounded, color: Colors.white, size: 18),
-                        const SizedBox(width: 8),
-                        Text('Barchasi', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
-                      ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _selectedWebCategoryId == null
+                              ? kPrimaryGreenDark
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          border: _selectedWebCategoryId == null
+                              ? null
+                              : Border.all(color: kDividerColor),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.menu_rounded,
+                              color: _selectedWebCategoryId == null
+                                  ? Colors.white
+                                  : kTextColor,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.categoryAll,
+                              style: GoogleFonts.poppins(
+                                color: _selectedWebCategoryId == null
+                                    ? Colors.white
+                                    : kTextColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 24),
@@ -276,10 +427,16 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: Provider.of<Categories>(context).items.take(7).map((category) => Padding(
-                              padding: const EdgeInsets.only(right: 24),
-                              child: _buildWebCategoryNavItem(category),
-                            )).toList(),
+                        children: Provider.of<Categories>(context)
+                            .items
+                            .map((category) {
+                          final selected =
+                              category.id == _selectedWebCategoryId;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: _buildWebCategoryNavItem(category, selected),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
@@ -302,40 +459,70 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: NavDrawer(),
+      drawer: const NavDrawer(),
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: kCardColor,
         surfaceTintColor: Colors.transparent,
-        leading: GestureDetector(
-          onTap: () => _scaffoldKey.currentState!.openDrawer(),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: kDividerColor,
-                  width: 1.5,
+        leading: _currentIndex == 1 && _exploreFilterCategoryId != null
+            ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    if (_exploreProductListFromShop) {
+                      _exploreFilterCategoryId = null;
+                      _selectedWebCategoryId = null;
+                      _exploreProductListFromShop = false;
+                      _currentIndex = 0;
+                    } else {
+                      _exploreFilterCategoryId = null;
+                      _selectedWebCategoryId = null;
+                    }
+                  });
+                },
+                padding: const EdgeInsets.all(10),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: kBackgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kDividerColor, width: 1),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_rounded,
+                    size: 20,
+                    color: kTextColor,
+                  ),
+                ),
+              )
+            : GestureDetector(
+                onTap: () => _scaffoldKey.currentState!.openDrawer(),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: kDividerColor,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'shopping_assets/images/user.png',
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: ClipOval(
-                child: Image.asset(
-                  'shopping_assets/images/user.png',
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                ),
-              ),
-            ),
-          ),
-        ),
         centerTitle: true,
         title: Column(
           children: [
             Text(
-              _titles[_currentIndex],
+              titles[_currentIndex],
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -344,31 +531,6 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => LoginUI()),
-                );
-              },
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: kBackgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.logout_rounded,
-                  size: 20,
-                  color: kTextSecondary,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: mainScreenOptions,
       bottomNavigationBar: Container(
@@ -388,10 +550,10 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.storefront_rounded, 'Do\'kon'),
-                _buildNavItem(1, Icons.grid_view_rounded, 'Turkumlar'),
-                _buildNavItem(2, Icons.shopping_cart_rounded, 'Savatcha'),
-                _buildNavItem(3, Icons.favorite_rounded, 'Sevimlilar'),
+                _buildNavItem(0, Icons.storefront_rounded, l10n.tabShop),
+                _buildNavItem(1, Icons.grid_view_rounded, l10n.tabCategories),
+                _buildNavItem(2, Icons.shopping_cart_rounded, l10n.tabCart),
+                _buildNavItem(3, Icons.favorite_rounded, l10n.tabFavorites),
               ],
             ),
           ),
@@ -403,7 +565,14 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        setState(() {
+          if (index == 0) {
+            _exploreProductListFromShop = false;
+          }
+          _currentIndex = index;
+        });
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
@@ -441,25 +610,35 @@ class _HomeDashBoardScreenState extends State<HomeDashBoardScreen> {
     );
   }
 
-  Widget _buildWebCategoryNavItem(dynamic category) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _currentIndex = 0; // Go to Shop
-          _categoryProducts = Provider.of<Categories>(context, listen: false)
-              .getProductsById(context, category.id);
-          _currentIndex = 1; // Then to Explore with results
-        });
-      },
-      onHover: (hovering) {},
-      child: Text(
-        category.title.replaceAll('\n', ' '),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: GoogleFonts.poppins(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: kTextColor,
+  Widget _buildWebCategoryNavItem(Category category, bool selected) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedWebCategoryId = category.id;
+            _exploreFilterCategoryId = category.id;
+            _exploreProductListFromShop = false;
+            _currentIndex = 1;
+          });
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? kPrimaryGreenDark : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            category.title.replaceAll('\n', ' '),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: selected ? Colors.white : kTextColor,
+            ),
+          ),
         ),
       ),
     );

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/screens/home_dashboad_screen.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 
 class LoginUI extends StatefulWidget {
+  const LoginUI({Key? key}) : super(key: key);
+
   @override
   _LoginUIState createState() => _LoginUIState();
 }
@@ -41,8 +44,13 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
@@ -91,7 +99,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Xush kelibsiz',
+                          l10n.welcome,
                           style: GoogleFonts.poppins(
                             fontSize: 28,
                             fontWeight: FontWeight.w700,
@@ -100,7 +108,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Hisobingizga kiring',
+                          l10n.signInSubtitle,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.white.withValues(alpha: 0.8),
@@ -126,7 +134,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                             children: [
                               // Email Field
                               Text(
-                                'Email',
+                                l10n.email,
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -138,7 +146,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
-                                  hintText: 'Emailingizni kiriting',
+                                  hintText: l10n.emailHint,
                                   prefixIcon: const Icon(Icons.email_outlined,
                                       color: kTextLight, size: 20),
                                   filled: true,
@@ -152,7 +160,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                               const SizedBox(height: 20),
                               // Password Field
                               Text(
-                                'Parol',
+                                l10n.password,
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -164,7 +172,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                                 controller: _passwordController,
                                 obscureText: _obscurePassword,
                                 decoration: InputDecoration(
-                                  hintText: 'Parolingizni kiriting',
+                                  hintText: l10n.passwordHint,
                                   prefixIcon: const Icon(Icons.lock_outline,
                                       color: kTextLight, size: 20),
                                   suffixIcon: IconButton(
@@ -193,9 +201,9 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButton(
-                                  onPressed: () {},
+                                  onPressed: () => _showSnack(l10n.passwordResetHint),
                                   child: Text(
-                                    'Parolni unutdingizmi?',
+                                    l10n.forgotPassword,
                                     style: GoogleFonts.poppins(
                                       fontSize: 13,
                                       color: kPrimaryGreen,
@@ -219,7 +227,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   child: Text(
-                                    'Kirish',
+                                    l10n.signIn,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -235,7 +243,7 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                     child: Text(
-                                      'or',
+                                      l10n.or,
                                       style: GoogleFonts.poppins(
                                         color: kTextLight,
                                         fontSize: 13,
@@ -250,10 +258,10 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                               SizedBox(
                                 height: 50,
                                 child: OutlinedButton.icon(
-                                  onPressed: () {},
+                                  onPressed: () => _showSnack(l10n.googleSignInComingSoon),
                                   icon: const Icon(Icons.g_mobiledata, size: 28),
                                   label: Text(
-                                    'Google orqali kirish',
+                                    l10n.signInWithGoogle,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -273,20 +281,21 @@ class _LoginUIState extends State<LoginUI> with SingleTickerProviderStateMixin {
                         ),
                         const SizedBox(height: 24),
                         // Sign up
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
-                              "Hisobingiz yo'qmi? ",
+                              l10n.noAccount,
                               style: GoogleFonts.poppins(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () => _showSnack(l10n.signUpComingSoon),
                               child: Text(
-                                "Ro'yxatdan o'tish",
+                                l10n.signUp,
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 14,

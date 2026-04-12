@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/product.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 
@@ -10,11 +11,12 @@ class Description extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tavsif',
+          l10n.descriptionTitle,
           style: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,

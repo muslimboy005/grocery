@@ -43,3 +43,6 @@ const Color shrineSurfaceWhite = kSurfaceColor;
 const Color shrineBackgroundWhite = kBackgroundColor;
 
 const defaultLetterSpacing = 0.03;
+
+/// Legacy padding used by detail sub-widgets.
+const double kDefaultPadding = 20.0;

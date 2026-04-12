@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grocery_app/l10n/app_localizations.dart';
 import 'package:grocery_app/model/products.dart';
 import 'package:grocery_app/util/shopping_colors.dart';
 import 'package:grocery_app/util/responsive.dart';
@@ -14,6 +15,7 @@ class FavScreen extends StatefulWidget {
 class _FavScreenState extends State<FavScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final products = Provider.of<Products>(context).favoriteItems;
     bool isMobile = Responsive.isMobile(context);
 
@@ -37,7 +39,7 @@ class _FavScreenState extends State<FavScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Hali sevimlilar yo\'q',
+              l10n.emptyFavoritesTitle,
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -46,7 +48,7 @@ class _FavScreenState extends State<FavScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Yoqtirgan mahsulotlaringizdagi yurakchani bosing',
+              l10n.emptyFavoritesSubtitle,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: kTextSecondary,
